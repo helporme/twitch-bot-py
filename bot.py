@@ -1,6 +1,6 @@
 #Developer šaH
 #version 1.0 
-#last update 12.06.2019 17:05
+#last update 12.06.2019 17:31
 
 import discord
 import os
@@ -14,6 +14,10 @@ extetensions = ['profile','search','emojis','player','team']
 for extenstion in extetensions:
     bot.load_extension(f'cogs.{extenstion}')
 
+@bot.event
+async def on_ready():
+    await bot.change_presence(game= discord.Game(name='t?help or t?'))
+    
 @bot.command(pass_context=True, name='help', aliases=['h',''])
 async def _help(ctx, command=None):
     if command == None:
