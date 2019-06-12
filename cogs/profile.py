@@ -2,7 +2,8 @@ import discord
 import asyncio
 import requests
 import sys
-from os import path, environ
+import os
+from os import path
 from discord.ext import commands
 from twitch import TwitchClient
 
@@ -18,7 +19,7 @@ class Profile:
         self.update_messages = []
         self.follows = []
         self.client = TwitchClient(
-            client_id= environ['twitch_key']
+            client_id= os.environ['twitch_key']
             )
         
         #create background tasks
