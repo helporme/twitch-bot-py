@@ -32,6 +32,13 @@ class Profile:
         #get all users
         users = self.client.users.translate_usernames_to_ids(list(names))
         
+        if users == []:
+            await self.bot.send_message(
+                ctx.message.channel, 
+                'Can\'t find users. Use ``t?search (query)`` to find streams, users and more!'
+            )
+            return
+        
         for user in users:
             if user == []:
                 await self.bot.send_message(
@@ -73,7 +80,14 @@ class Profile:
     async def _stream(self, ctx, *names):
         #get all users
         users = self.client.users.translate_usernames_to_ids(list(names))
-
+        
+        if users == []:
+            await self.bot.send_message(
+                ctx.message.channel, 
+                'Can\'t find users. Use ``t?search (query)`` to find streams, users and more!'
+            )
+            return
+        
         for user in users:
             if user == []:
                 await self.bot.send_message(
