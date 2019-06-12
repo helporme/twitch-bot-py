@@ -1,5 +1,6 @@
 import asyncio
 import discord
+import os
 from discord.ext import commands
 from twitch import TwitchClient
 
@@ -16,7 +17,7 @@ class Player:
         }
         self.streams = []
         self.client = TwitchClient(
-            client_id='k4hjxhg1n3pxgfvv9e4zx59u1zn3ab'
+            client_id= os.environ['twitch_key']
             )
     
     @commands.command(pass_context=True, name='player', aliases=['pl'])
