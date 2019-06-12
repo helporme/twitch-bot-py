@@ -1,0 +1,4 @@
+discord==1.0.1
+discord.py==0.16.12
+asyncio==3.4.3
+python-twitch-client==0.6.0
