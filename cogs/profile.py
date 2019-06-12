@@ -279,7 +279,10 @@ class Profile:
         for info in self.sended_messages:
             if reaction.message.timestamp == info['message'].timestamp and user != self.bot.user:
                 #remove added emoji on bot message
-                await self.bot.remove_reaction(reaction.message, reaction.emoji, user)
+                try:
+                    await self.bot.remove_reaction(reaction.message, reaction.emoji, user)
+                except:
+                    pass
                 if reaction.emoji in info['emojis']:
                     #buttons code
                     if reaction.emoji == '❤':
