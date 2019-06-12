@@ -2,6 +2,7 @@ import discord
 import requests
 import json
 import asyncio
+import os
 from discord.ext import commands
 from io import StringIO
 from urllib.request import urlopen
@@ -12,7 +13,7 @@ class Emojis:
         self.bot = bot
         self.messages = []
         self.client = TwitchClient(
-            client_id='k4hjxhg1n3pxgfvv9e4zx59u1zn3ab'
+            client_id= os.environ['twitch_key']
             )
         
         self.bot.loop.create_task(self.turn_off_buttons())
