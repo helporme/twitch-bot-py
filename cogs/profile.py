@@ -310,14 +310,7 @@ class Profile:
                         if clips == []:
                             await self.bot.send_message(
                                 reaction.message.channel, 
-                                'Can\'t find user/s. Use ``t?search (query)`` to find streams, users and more!'
-                            )
-                            return
-                        
-                        if clips == None:
-                            await self.bot.send_message(
-                                reaction.message.channel, 
-                                'No clips D:'
+                                'No clips D;'
                             )
                             return
                         
