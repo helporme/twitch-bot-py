@@ -1,7 +1,7 @@
 import discord
 import asyncio
 import sys
-from os import path
+from os import path, environ
 from discord.ext import commands
 from twitch import TwitchClient
 
@@ -15,7 +15,7 @@ class Team:
         self.bot = bot
         self.messages = []
         self.client = TwitchClient(
-            client_id='k4hjxhg1n3pxgfvv9e4zx59u1zn3ab'
+            client_id= environ['twitch_key']
             )
 
         #create background task
