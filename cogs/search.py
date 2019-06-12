@@ -2,6 +2,7 @@
 
 import discord
 import asyncio
+import os
 from discord.ext import commands
 from twitch import TwitchClient
 
@@ -10,7 +11,7 @@ class Search:
         self.bot = bot
         self.messages = []
         self.client = TwitchClient(
-            client_id='k4hjxhg1n3pxgfvv9e4zx59u1zn3ab'
+            client_id= os.environ['twitch_key']
             )
 
         #create background tasks
