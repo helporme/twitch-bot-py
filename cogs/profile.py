@@ -88,8 +88,16 @@ class Profile:
     @commands.command(pass_context=True, name='stream', aliases=['streams', 'st'])
     async def _stream(self, ctx, *names):
         #get all users
-        users = self.client.users.translate_usernames_to_ids(list(names))
-        
+        #if a user has written t?stream <>
+        try:
+            users = self.client.users.translate_usernames_to_ids(list(names))
+        except:
+            await self.bot.send_message(
+                ctx.message.channel,
+                'Error, write t?stream ``<channel name>``'
+            )
+
+        #if a user has written 1 wrong name
         if users == []:
             await self.bot.send_message(
                 ctx.message.channel, 
@@ -98,6 +106,7 @@ class Profile:
             return
         
         for user in users:
+            #if a user has written several wrong channels
             if user == []:
                 await self.bot.send_message(
                 ctx.message.channel, 
