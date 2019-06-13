@@ -1,8 +1,6 @@
-#bad code, but I'm tired of writing this bot
-
 import discord
 import asyncio
-import os
+from os import environ
 from discord.ext import commands
 from twitch import TwitchClient
 
@@ -11,7 +9,7 @@ class Search:
         self.bot = bot
         self.messages = []
         self.client = TwitchClient(
-            client_id= os.environ['twitch_key']
+            client_id= environ['twitch_key']
             )
 
         #create background tasks

@@ -1,8 +1,14 @@
 import asyncio
 import discord
-import os
+import sys
+from os import path, environ
 from discord.ext import commands
 from twitch import TwitchClient
+
+#set default folder
+sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
+from tools.libopus_loader import load_opus_lib
 
 class Player:
     def __init__(self, bot):
@@ -17,12 +23,11 @@ class Player:
         }
         self.streams = []
         self.client = TwitchClient(
-            client_id= os.environ['twitch_key']
+            client_id= environ['twitch_key']
             )
         
         #load opus
-        if not discord.opus.is_loaded():
-            discord.opus.load_opus()
+        load_opus_lib()
     
     @commands.command(pass_context=True, name='player', aliases=['pl'])
     async def _player(self, ctx, *users):
