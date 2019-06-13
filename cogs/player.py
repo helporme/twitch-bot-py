@@ -19,6 +19,10 @@ class Player:
         self.client = TwitchClient(
             client_id= os.environ['twitch_key']
             )
+        
+        #load opus
+        if not discord.opus.is_loaded():
+            discord.opus.load_opus()
     
     @commands.command(pass_context=True, name='player', aliases=['pl'])
     async def _player(self, ctx, *users):
