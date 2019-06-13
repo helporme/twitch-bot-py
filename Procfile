@@ -1,1 +1,1 @@
-worker run.bat
+worker python3 bot.py
