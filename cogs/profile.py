@@ -30,8 +30,16 @@ class Profile:
     @commands.command(pass_context=True, name='profile', aliases=['profiles','p'])
     async def _profile(self, ctx, *names):
         #get all users
-        users = self.client.users.translate_usernames_to_ids(list(names))
+        #if a user has written t?profile <>
+        try:
+            users = self.client.users.translate_usernames_to_ids(list(names))
+        except:
+            await self.bot.send_message(
+                ctx.message.channel,
+                'Error, write t?profile ``<channel name>``'
+            )
         
+        #if a user has written 1 wrong channel
         if users == []:
             await self.bot.send_message(
                 ctx.message.channel, 
@@ -40,6 +48,7 @@ class Profile:
             return
         
         for user in users:
+            #if a user has written several wrong channels
             if user == []:
                 await self.bot.send_message(
                     ctx.message.channel, 
