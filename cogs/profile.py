@@ -96,7 +96,8 @@ class Profile:
                 ctx.message.channel,
                 'Error, write t?stream ``<channel name>``'
             )
-
+            return
+        
         #if a user has written 1 wrong name
         if users == []:
             await self.bot.send_message(
@@ -148,7 +149,14 @@ class Profile:
 
     
     @commands.command(pass_context=True, name='clips', aliases=['clip','cl'])
-    async def _clip(self, ctx, *names, period='week', limit=25):
+    async def _clip(self, ctx, *names=None, period='week', limit=25):
+        if names == None:
+            await self.bot.send_message(
+                ctx.message.channel,
+                'Error, write t?clips ``<channel name>``'
+            )
+            return
+
         for name in names:
             #get clips
             clips = self.client.clips.get_top(
