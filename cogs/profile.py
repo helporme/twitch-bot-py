@@ -149,8 +149,8 @@ class Profile:
 
     
     @commands.command(pass_context=True, name='clips', aliases=['clip','cl'])
-    async def _clip(self, ctx, *names=None, period='week', limit=25):
-        if names == None:
+    async def _clip(self, ctx, *names, period='week', limit=25):
+        if names == ():
             await self.bot.send_message(
                 ctx.message.channel,
                 'Error, write t?clips ``<channel name>``'
