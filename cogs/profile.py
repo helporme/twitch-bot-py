@@ -88,8 +88,17 @@ class Profile:
     @commands.command(pass_context=True, name='stream', aliases=['streams', 'st'])
     async def _stream(self, ctx, *names):
         #get all users
-        users = self.client.users.translate_usernames_to_ids(list(names))
+        #if a user has written t?stream <>
+        try:
+            users = self.client.users.translate_usernames_to_ids(list(names))
+        except:
+            await self.bot.send_message(
+                ctx.message.channel,
+                'Error, write t?stream ``<channel name>``'
+            )
+            return
         
+        #if a user has written 1 wrong name
         if users == []:
             await self.bot.send_message(
                 ctx.message.channel, 
@@ -98,12 +107,13 @@ class Profile:
             return
         
         for user in users:
+            #if a user has written several wrong channels
             if user == []:
                 await self.bot.send_message(
                 ctx.message.channel, 
                 'Can\'t find user. Use ``t?search (query)`` to find streams, users and more!'
             )
-            continue
+                continue
 
             #get info about stream
             info = self.client.streams.get_stream_by_user(user['id'])
@@ -139,22 +149,28 @@ class Profile:
 
     
     @commands.command(pass_context=True, name='clips', aliases=['clip','cl'])
-    async def _clip(self, ctx, *names, period='week', limit=25):
-        for name in names:
-            #get clips
-            clips = self.client.clips.get_top(
-                channel=name, 
-                limit=limit % 100, 
-                period=period
+    async def _clip(self, ctx, name=None, period='week', limit=25):
+        if name == None:
+            await self.bot.send_message(
+                ctx.message.channel,
+                'Error, write t?clips ``<channel name>``'
+            )
+            return
+    
+        #get clips
+        clips = self.client.clips.get_top(
+            channel=name, 
+            limit=limit % 100, 
+            period=period
+        )
+    
+        if clips == []:
+            await self.bot.send_message(
+                ctx.message.channel, 
+                'No clips D:'
             )
         
-            if clips == []:
-                await self.bot.send_message(
-                    ctx.message.channel, 
-                    'No clips D:'
-                )
-                continue
-            
+        else:
             #create count of all pages
             pages = len(clips) // 5 if len(clips) % 5 == 0 else len(clips) // 5 + 1
 

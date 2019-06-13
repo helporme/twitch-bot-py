@@ -222,7 +222,7 @@ class Emojis:
     async def turn_off_buttons(self):
         await self.bot.wait_until_ready()
         while not self.bot.is_closed:
-            if len(self.messages) > 50:
+            if len(self.messages) > 10:
                 self.messages = [self.messages.pop()]
                 await self.bot.send_message(
                     self.messages[0]['message'].channel,
