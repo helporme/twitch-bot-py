@@ -1,6 +1,5 @@
 #Developer šaH
 #version 1.0 
-#last update 12.06.2019 17:31
 
 import discord
 import os
@@ -30,6 +29,9 @@ async def _help(ctx, command=None):
                 **t?emojis**  *<channel name>* | Import emojis from twitch channel
                 **t?player** *<channel name>* | Listen to stream
                 **t?team** *<team name>* | View info about team
+                
+                Wrtie ``t?help <command>`` to get more information!
+
             '''
 
     else:
