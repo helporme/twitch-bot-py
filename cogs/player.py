@@ -39,14 +39,15 @@ class Player:
                 stream = self.client.streams.get_stream_by_user(user['id'])
                 if stream != None:
                     if not self.current_player['play']:
-                        #Connect to a voice channel
-                        voice = await self.bot.join_voice_channel(voice_channel)
-                        
                         #Loading
                         title = f'``Player`` | *{stream["channel"]["status"]}*'
                         description = 'Loading...'
                         embed = discord.Embed(title=title, description=description, color=0x6441A4)
                         message = await self.bot.send_message(ctx.message.channel, embed=embed)
+
+                        #Connect to a voice channel
+                        voice = await self.bot.join_voice_channel(voice_channel)
+                        
 
                         #Create player and start voice stream
                         player = await voice.create_ytdl_player(f'https://www.twitch.tv/{user["name"]}')
