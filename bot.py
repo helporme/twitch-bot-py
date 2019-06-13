@@ -1,5 +1,5 @@
 #Developer šaH
-#version 1.0 
+#version 1.2 
 
 import discord
 import os
@@ -33,6 +33,40 @@ async def _help(ctx, command=None):
                 Wrtie ``t?help <command>`` to get more information!
 
             '''
+        
+        #create embed
+        embed = discord.Embed(
+            title=title,
+            description=description,
+            color=0x6441A4
+        )
+
+        #create sec text
+        value = f'''
+        All:
+        ⬅ ➡ - Turn page 
+        ⬆ ⬇ - Select something
+        🔎 - Choose & open
+        🔄 - Refresh message every 3 sec
+
+        Profile:
+        ❤ - Follow to user
+
+        Player:
+        ❌ - Close player
+        ''' + u'\u23F8' + ' - Pause'
+
+        #add Field with buttons help
+        embed.add_field(
+            name= 'Emoji-buttons',
+            value= value
+        )
+
+        #send message
+        await bot.send_message(
+            ctx.message.channel,
+            embed=embed
+        )
 
     else:
         command.lower()
@@ -49,6 +83,7 @@ async def _help(ctx, command=None):
             Aliases:
             t?p, t?profiles
             '''
+            image = 'https://imgur.com/BjnE6a2.gif'
         
         elif command in 'stream':
             title = 'Stream'
@@ -62,6 +97,7 @@ async def _help(ctx, command=None):
             Aliases:
             t?st, t?streams
             '''
+            image = 'https://imgur.com/EDGsy16.gif'
         
         elif command in 'clips':
             title = 'Clips'
@@ -75,6 +111,7 @@ async def _help(ctx, command=None):
             Aliases:
             t?cl, t?clip
             '''
+            image = 'https://imgur.com/4EuKW8V.gif'
         
         elif command in 'search':
             title = 'Search'
@@ -89,6 +126,7 @@ async def _help(ctx, command=None):
             Aliases:
             t?s
             '''
+            image = 'https://imgur.com/luFPrUF.gif'
         
         elif command in 'emojis':
             title = 'Emojis'
@@ -108,6 +146,7 @@ async def _help(ctx, command=None):
             Aliases:
             t?e, t?emoji
             '''
+            image = ''
         
         elif command in 'player':
             title = 'Player'
@@ -121,6 +160,7 @@ async def _help(ctx, command=None):
             2. t?player mexaak, adam1tbc
             3. t?player mexaak *after this* t?player adam1tbc 
             '''
+            image = 'https://imgur.com/x54FIUh.gif' 
         
         elif command in 'team':
             title = 'Team'
@@ -133,6 +173,7 @@ async def _help(ctx, command=None):
             Aliases:
             t?t, t?teams
             '''
+            image = 'https://i.imgur.com/dE0naJ5.gif'    
         
         else:
             await bot.send_message(
@@ -141,14 +182,19 @@ async def _help(ctx, command=None):
             )
             return
         
-    await bot.send_message(
-        ctx.message.channel,
+        #Embed
         embed = discord.Embed(
             title = title,
             description = description,
             color = 0x6441A4
         )
-    )
+        embed.set_image(url=image)
+
+        #Send message
+        await bot.send_message(
+            ctx.message.channel,
+            embed=embed
+        )
 
 @bot.command(pass_context=True, name='report', aliases=['reports','rep','r'])
 async def _report(ctx, *, reason=None):
