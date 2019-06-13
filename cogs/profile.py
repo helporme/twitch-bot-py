@@ -112,7 +112,7 @@ class Profile:
                 ctx.message.channel, 
                 'Can\'t find user. Use ``t?search (query)`` to find streams, users and more!'
             )
-            continue
+                continue
 
             #get info about stream
             info = self.client.streams.get_stream_by_user(user['id'])
