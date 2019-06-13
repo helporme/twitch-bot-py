@@ -34,38 +34,14 @@ async def _help(ctx, command=None):
 
             '''
         
-        #create embed
-        embed = discord.Embed(
-            title=title,
-            description=description,
-            color=0x6441A4
-        )
-
-        #create sec text
-        value = f'''
-        All:
-        ⬅ ➡ - Turn page 
-        ⬆ ⬇ - Select something
-        🔎 - Choose & open
-        🔄 - Refresh message every 3 sec
-
-        Profile:
-        ❤ - Follow to user
-
-        Player:
-        ❌ - Close player
-        ''' + u'\u23F8' + ' - Pause'
-
-        #add Field with buttons help
-        embed.add_field(
-            name= 'Emoji-buttons',
-            value= value
-        )
-
         #send message
         await bot.send_message(
             ctx.message.channel,
-            embed=embed
+            embed=discord.Embed(
+                title=title,
+                description=description,
+                color=0x6441A4
+            )
         )
 
     else:
