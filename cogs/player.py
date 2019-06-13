@@ -1,8 +1,14 @@
 import asyncio
 import discord
-import os
+import sys
+from os import path, environ
 from discord.ext import commands
 from twitch import TwitchClient
+
+#set default folder
+sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
+from tools.libopus_loader import load_opus_lib
 
 class Player:
     def __init__(self, bot):
@@ -17,8 +23,11 @@ class Player:
         }
         self.streams = []
         self.client = TwitchClient(
-            client_id= os.environ['twitch_key']
+            client_id= environ['twitch_key']
             )
+        
+        #load opus
+        load_opus_lib()
     
     @commands.command(pass_context=True, name='player', aliases=['pl'])
     async def _player(self, ctx, *users):
@@ -30,14 +39,15 @@ class Player:
                 stream = self.client.streams.get_stream_by_user(user['id'])
                 if stream != None:
                     if not self.current_player['play']:
-                        #Connect to a voice channel
-                        voice = await self.bot.join_voice_channel(voice_channel)
-                        
                         #Loading
                         title = f'``Player`` | *{stream["channel"]["status"]}*'
                         description = 'Loading...'
                         embed = discord.Embed(title=title, description=description, color=0x6441A4)
                         message = await self.bot.send_message(ctx.message.channel, embed=embed)
+
+                        #Connect to a voice channel
+                        voice = await self.bot.join_voice_channel(voice_channel)
+                        
 
                         #Create player and start voice stream
                         player = await voice.create_ytdl_player(f'https://www.twitch.tv/{user["name"]}')

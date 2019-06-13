@@ -66,11 +66,11 @@ async def _help(ctx, command=None):
         elif command in 'clips':
             title = 'Clips'
             description = '''
-            **t?clips *<channel name or names>***
+            **t?clips *<channel name or names> <period (default is "week")> <limit (default is 25)>***
 
             Examples:
             1. t?clips jesusavgn
-            2. t?clips igmtv, ninja
+            2. t?clips igmtv week 50
 
             Aliases:
             t?cl, t?clip

@@ -2,8 +2,7 @@ import discord
 import asyncio
 import requests
 import sys
-import os
-from os import path
+from os import path, environ
 from discord.ext import commands
 from twitch import TwitchClient
 
@@ -19,7 +18,7 @@ class Profile:
         self.update_messages = []
         self.follows = []
         self.client = TwitchClient(
-            client_id= os.environ['twitch_key']
+            client_id= environ['twitch_key']
             )
         
         #create background tasks
@@ -149,29 +148,28 @@ class Profile:
 
     
     @commands.command(pass_context=True, name='clips', aliases=['clip','cl'])
-    async def _clip(self, ctx, *names, period='week', limit=25):
-        if names == ():
+    async def _clip(self, ctx, name=None, period='week', limit=25):
+        if name == None:
             await self.bot.send_message(
                 ctx.message.channel,
                 'Error, write t?clips ``<channel name>``'
             )
             return
-
-        for name in names:
-            #get clips
-            clips = self.client.clips.get_top(
-                channel=name, 
-                limit=limit % 100, 
-                period=period
+    
+        #get clips
+        clips = self.client.clips.get_top(
+            channel=name, 
+            limit=limit % 100, 
+            period=period
+        )
+    
+        if clips == []:
+            await self.bot.send_message(
+                ctx.message.channel, 
+                'No clips D:'
             )
         
-            if clips == []:
-                await self.bot.send_message(
-                    ctx.message.channel, 
-                    'No clips D:'
-                )
-                continue
-            
+        else:
             #create count of all pages
             pages = len(clips) // 5 if len(clips) % 5 == 0 else len(clips) // 5 + 1
 
