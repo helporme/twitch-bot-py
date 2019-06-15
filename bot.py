@@ -219,7 +219,7 @@ async def _report(ctx, *, reason=None):
                 'Cleared'
             )
 
-@bot.command(pass_context=True, name='changegame', aliases=['cg'])
+@bot.command(pass_context=True, name='changegame', aliases=['chg'])
 async def _changegame(ctx, *, game):
     if ctx.message.author.id in DEVS:
         await bot.change_presence(game=discord.Game(name=game))
