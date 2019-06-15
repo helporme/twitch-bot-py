@@ -1,7 +1,8 @@
-#Developer šaH
-#version 1.0 
+#Developer šaH 
+#https://github.com/sah-py/
 
 import discord
+import urllib
 import os
 from discord.ext import commands
 
@@ -9,13 +10,14 @@ bot = commands.Bot(command_prefix=commands.when_mentioned_or('t?'))
 bot.remove_command('help')
 
 extetensions = ['profile','search','emojis','player','team']
+DEVS = ['255723371994546178']
 
 for extenstion in extetensions:
     bot.load_extension(f'cogs.{extenstion}')
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(game= discord.Game(name='t?help or t?'))
+    await bot.change_presence(game=discord.Game(name='t?help or t?'))
     
 @bot.command(pass_context=True, name='help', aliases=['h',''])
 async def _help(ctx, command=None):
@@ -33,6 +35,16 @@ async def _help(ctx, command=None):
                 Wrtie ``t?help <command>`` to get more information!
 
             '''
+        
+        #send message
+        await bot.send_message(
+            ctx.message.channel,
+            embed=discord.Embed(
+                title=title,
+                description=description,
+                color=0x6441A4
+            )
+        )
 
     else:
         command.lower()
@@ -49,6 +61,7 @@ async def _help(ctx, command=None):
             Aliases:
             t?p, t?profiles
             '''
+            image = 'https://imgur.com/BjnE6a2.gif'
         
         elif command in 'stream':
             title = 'Stream'
@@ -62,6 +75,7 @@ async def _help(ctx, command=None):
             Aliases:
             t?st, t?streams
             '''
+            image = 'https://imgur.com/EDGsy16.gif'
         
         elif command in 'clips':
             title = 'Clips'
@@ -75,6 +89,7 @@ async def _help(ctx, command=None):
             Aliases:
             t?cl, t?clip
             '''
+            image = 'https://imgur.com/4EuKW8V.gif'
         
         elif command in 'search':
             title = 'Search'
@@ -89,6 +104,7 @@ async def _help(ctx, command=None):
             Aliases:
             t?s
             '''
+            image = 'https://imgur.com/luFPrUF.gif'
         
         elif command in 'emojis':
             title = 'Emojis'
@@ -108,6 +124,7 @@ async def _help(ctx, command=None):
             Aliases:
             t?e, t?emoji
             '''
+            image = ''
         
         elif command in 'player':
             title = 'Player'
@@ -121,6 +138,7 @@ async def _help(ctx, command=None):
             2. t?player mexaak, adam1tbc
             3. t?player mexaak *after this* t?player adam1tbc 
             '''
+            image = 'https://imgur.com/x54FIUh.gif' 
         
         elif command in 'team':
             title = 'Team'
@@ -133,6 +151,7 @@ async def _help(ctx, command=None):
             Aliases:
             t?t, t?teams
             '''
+            image = 'https://i.imgur.com/dE0naJ5.gif'    
         
         else:
             await bot.send_message(
@@ -141,58 +160,313 @@ async def _help(ctx, command=None):
             )
             return
         
-    await bot.send_message(
-        ctx.message.channel,
+        #Embed
         embed = discord.Embed(
             title = title,
             description = description,
             color = 0x6441A4
         )
-    )
+        embed.set_image(url=image)
+
+        #Send message
+        await bot.send_message(
+            ctx.message.channel,
+            embed=embed
+        )
 
 @bot.command(pass_context=True, name='report', aliases=['reports','rep','r'])
-async def _report(ctx, *, reason=None):
-    if ctx.message.author.id != '255723371994546178':
+async def _report(ctx, *, reason=''):
+    if ctx.message.author.id not in DEVS:
         if reason == None:
             await bot.send_message(
                 ctx.message.channel,
-                'Error'
+                'Error, write t?report ``<reason>``'
             )
             return
         
-        file = open('reports', 'a')
-        file.write(reason.replace('\n', ' ') + '\n')
+        info = {
+            'reason': reason,
+            'author': ctx.message.author.name,
+            'channel': ctx.message.channel.id,
+            'server': ctx.message.server.id if ctx.message.server != None else 'None',
+            'time': ctx.message.timestamp
+        } 
+
+        file = open('reports', 'r', encoding='utf8')
+
+        reason_list = eval(file.read())
+        reason_list.append(info)
+
         file.close()
+        file = open('reports', 'w', encoding='utf8')
+        file.write(str(reason_list))
 
         await bot.send_message(
             ctx.message.channel,
-            'Thanks for reporting the error'
+            embed = discord.Embed(
+                title = 'Thanks!',
+                description = 'Thanks for reporting the error',
+                color = 0x6441A4
+            )
         )
 
     else:
-        if reason == None:
-            file = open('reports', 'r+')
+        if reason == '':
+            file = open('reports', 'r', encoding='utf8')
             
-            text = file.read().split('\n')
-            try:
-                for n in range(len(text) // 5 if len(text) % 5 == 0 else len(text) // 5 + 1):
-                    await bot.send_message(
-                        ctx.message.channel,
-                        '\n'.join(text[5*n: 5*(n+1)])
-                    )
-            except:
+            reasons = eval(file.read())
+            if reasons == []:
                 await bot.send_message(
                     ctx.message.channel,
-                    'Empity message'
+                    'No errors'
                 )
+                return
+            
+            for reason in reasons:
+                message = await bot.send_message(
+                    ctx.message.channel,
+                    embed = discord.Embed(
+                        title = f"{reason['author']}",
+                        description = reason['reason'],
+                        color = 0x6441A4
+                    )
+                )
+                
+                for emoji in ['❌', 'ℹ', '✅']:
+                    await bot.add_reaction(message, emoji)
+
+                global error_messages
+                error_messages.append({
+                    'message': message,
+                    'info': reason
+                })
         
         elif reason == 'clear':
-            file = open('reports', 'w')
-            file.write('')
+
+            file = open('reports', 'w', encoding='utf8')
+            file.write('[]')
+            file.close()
+
+            error_messages = []
 
             await bot.send_message(
                 ctx.message.channel,
                 'Cleared'
             )
+
+@bot.command(pass_context=True, name='changegame', aliases=['chg'])
+async def _changegame(ctx, *, game):
+    if ctx.message.author.id in DEVS:
+        await bot.change_presence(game=discord.Game(name=game))
+        await bot.send_message(
+            ctx.message.channel,
+            f'Game changed to {game}'
+        )
+    else:
+        await bot.send_message(
+            ctx.message.channel,
+            'No access'
+        )
+
+@bot.command(pass_context=True, name='shutdown', aliases=['sd'])
+async def _shutdown(ctx, mode):
+    if ctx.message.author.id in DEVS:
+        if mode in 'stop':
+            await bot.send_message(
+                ctx.message.channel,
+                'Shutting down'
+            )
+            await bot.logout()
         
+        if mode in 'restart':
+            await bot.send_message(
+                ctx.message.channel,
+                'Restart'
+            ) 
+            bot.run(os.environ['token'])
+    
+    else:
+        await bot.send_message(
+            ctx.message.channel,
+            'No access'
+        )
+
+@bot.command(pass_context=True, name='cogs', aliases=['cg'])
+async def _cogs(ctx, mode, *, path):
+    if ctx.message.author.id in DEVS:
+        if mode in 'load':
+            try:
+                bot.load_extension(path)
+                await bot.send_message(
+                    ctx.message.channel,
+                    f'{path} loaded'
+                )
+            except:
+                await bot.send_message(
+                    ctx.message.channel,
+                    'Something go wrong'
+                )
+        
+        if mode in 'unload':
+            try:
+                bot.unload_extension(path)
+                await bot.send_message(
+                    ctx.message.channel,
+                    f'{path} unloaded'
+                )
+            except:
+                await bot.send_message(
+                    ctx.message.channel,
+                    'Something go wrong'
+                )
+        
+        if mode in 'reload':
+            try:
+                bot.unload_extension(path)
+                bot.load_extension(path)
+
+                await bot.send_message(
+                    ctx.message.channel,
+                    f'{path} reloaded'
+                )
+            except:
+                await bot.send_message(
+                    ctx.message.channel,
+                    'Something go wrong'
+                )
+            
+    else:
+        await bot.send_message(
+            ctx.message.channel,
+            'No access'
+        )
+
+@bot.command(pass_context=True, name='file', aliases=['fl'])
+async def _file(ctx, mode, *, value):
+    if ctx.message.author.id in DEVS:
+        if mode in 'read':
+            file = open(value, 'r', encoding='utf8')
+            text = file.read()
+
+            await bot.send_message(
+                ctx.message.channel,
+                text
+            )
+
+            file.close()
+        if mode in 'get':
+            try:
+                await bot.send_file(
+                    ctx.message.channel,
+                    value
+                )
+            except:
+                await bot.send_message(
+                    ctx.message.channel,
+                    'Something go wrong'
+                )   
+
+        if mode in 'remove':
+            try:
+                os.rename(value, os.path.join(os.path.dirname(__file__), 'removed', value))
+                await bot.send_message(
+                    ctx.message.channel,
+                    f'{value} removed'
+                )
+            except:
+                await bot.send_message(
+                    ctx.message.channel,
+                    'Something go wrong'
+                )   
+        
+        if mode in 'return':
+            try:
+                os.rename(
+                    os.path.join(os.path.dirname(__file__), 'removed', value),
+                    os.path.join(os.path.dirname(__file__), value)
+                )
+                await bot.send_message(
+                    ctx.message.channel,
+                    f'{value} returned'
+                )
+            except:
+                await bot.send_message(
+                    ctx.message.channel,
+                    'Something go wrong'
+                )   
+
+        if mode in 'add':
+            try:
+                r = requests.get(ctx.message.attachments[0]['url'])
+
+                file = open(value, 'wb', encoding='utf8')
+                file.write(r.content)
+                file.close()
+
+                await bot.send_message(
+                    ctx.message.channel,
+                    'Successful'
+                )
+        
+            except:
+                await bot.send_message(
+                    ctx.message.channel,
+                    'Something go wrong'
+                )
+
+    else:
+        await bot.send_message(
+            ctx.message.channel,
+            'No access'
+        )
+
+@bot.event
+async def on_reaction_add(reaction, user):
+    for info in error_messages.copy():
+        if reaction.message.timestamp == info['message'].timestamp and user != bot.user:
+            try:
+                await bot.remove_reaction(reaction.message, reaction.emoji, user)
+            except:
+                pass
+            
+            if reaction.emoji == '❌':
+                file = open('reports', 'r', encoding='utf8')
+                reports = eval(file.read())
+                file.close()
+
+                file = open('reports', 'w', encoding='utf8')
+                reports.pop(reports.index(info['info']))
+                file.write(str(reports))
+                file.close()
+
+                error_messages.remove(info)
+                await bot.delete_message(info['message'])
+            
+            if reaction.emoji == 'ℹ':
+                await bot.send_message(
+                    reaction.message.channel,
+                    embed = discord.Embed(
+                        title = 'Info',
+                        description = '\n'.join([f"**{key}**: {info['info'][key]}" for key in info['info'].keys() if key != 'reason']),
+                        color = 0x6441A4
+                    )
+                )
+            
+            if reaction.emoji == '✅':
+                await bot.send_message(
+                    reaction.message.channel,
+                    f"Replying to {info['info']['author']}"
+                )
+                text = await bot.wait_for_message()
+
+                await bot.send_message(
+                    discord.Object(id=info['info']['channel']),
+                    text.content
+                )
+
+                await bot.send_message(
+                    reaction.message.channel,
+                    'Sended'
+                )
+
 bot.run(os.environ['token'])
