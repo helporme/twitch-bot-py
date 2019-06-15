@@ -242,14 +242,14 @@ async def _shutdown(ctx, mode):
                 'Shutting down'
             )
 
-            bot.close()
+            bot.logout()
         
         if mode in 'restart':
             await bot.send_message(
                 ctx.message.channel,
                 'Restart'
             ) 
-            bot.close()
+            bot.logout()
             bot.run(os.environ['token'])
     
     else:
@@ -325,7 +325,7 @@ async def _file(ctx, mode, *, value):
             try:
                 bot.send_file(
                     ctx.message.channel,
-                    filename=value
+                    filename= f'{os.path.dirname(file)}/{value}'
                 )
             except:
                 await bot.send_message(
@@ -335,7 +335,7 @@ async def _file(ctx, mode, *, value):
 
         if mode in 'remove':
             try:
-                os.rename(value, f'removed/{value}')
+                os.rename(value, f'{os.path.dirname(__file__)}/removed/{value}')
                 await bot.send_message(
                     ctx.message.channel,
                     f'{value} *removed*'
@@ -362,7 +362,7 @@ async def _file(ctx, mode, *, value):
         if mode in 'add':
             path, url = iter(value.split(' | '))
             try:
-                file = open(path, 'w')
+                file = open(f'{os.path.dirname}/{path}', 'w')
                 file.write(
                     urllib.open(url).read()
                 )

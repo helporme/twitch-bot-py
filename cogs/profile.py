@@ -37,6 +37,7 @@ class Profile:
                 ctx.message.channel,
                 'Error, write t?profile ``<channel name>``'
             )
+            return
         
         #if a user has written 1 wrong channel
         if users == []:
