@@ -16,7 +16,13 @@ class Search:
         self.bot.loop.create_task(self.turn_off_buttons())
 
     @commands.command(pass_context=True, name='search', aliases=['s'])
-    async def _search(self, ctx, *, query):
+    async def _search(self, ctx, *, query=None):
+        if query == None:
+            await self.bot.send_message(
+                ctx.message.channel,
+                'Error, write t?search ``<query>``'
+            )
+
         status = {
             'games': True,
             'streams': True,

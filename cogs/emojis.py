@@ -83,8 +83,7 @@ class Emojis:
                     emojis_splited.append(int(item)-1)
             
             n=0
-            emojis_copy = emojis.copy()
-            for key in emojis_copy.keys():
+            for key in emojis.copy().keys():
                 if n not in emojis_splited:
                     del emojis[key]
                 n+=1
@@ -117,8 +116,7 @@ class Emojis:
             
             #Add emojis to server 
             n=0
-            emojis_to_add = emojis.copy()
-            for key in emojis_to_add.keys():
+            for key in emojis.copy().keys():
                 try:
                     image = urlopen(emojis[key]).read()
                     await self.bot.create_custom_emoji(server=ctx.message.server, name=key, image=image)
