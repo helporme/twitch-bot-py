@@ -235,6 +235,7 @@ async def _changegame(ctx, *, game):
 
 @bot.command(pass_context=True, name='shutdown', aliases=['sd'])
 async def _shutdown(ctx, mode):
+    if ctx.message.author.id in DEVS:
         if mode in 'stop':
             await bot.send_message(
                 ctx.message.channel,
