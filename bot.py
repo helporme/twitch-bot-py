@@ -413,6 +413,19 @@ async def _file(ctx, mode, *, value):
                     ctx.message.channel,
                     'Something go wrong'
                 )
+        
+        if mode in 'mkdir':
+            try:
+                os.mkdir(value)
+                await bot.send_message(
+                    ctx.message.channel,
+                    f'{value} created.'
+                )
+            except:
+                await bot.send_message(
+                    ctx.message.channel,
+                    'Error'
+                )
 
     else:
         await bot.send_message(
