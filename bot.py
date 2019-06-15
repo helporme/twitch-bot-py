@@ -175,44 +175,79 @@ async def _help(ctx, command=None):
         )
 
 @bot.command(pass_context=True, name='report', aliases=['reports','rep','r'])
-async def _report(ctx, *, reason=None):
+async def _report(ctx, *, reason=''):
     if ctx.message.author.id not in DEVS:
         if reason == None:
             await bot.send_message(
                 ctx.message.channel,
-                'Error'
+                'Error, write t?report ``<reason>``'
             )
             return
         
-        file = open('reports', 'a')
-        file.write(reason.replace('\n', ' ') + '\n')
+        info = {
+            'reason': reason,
+            'author': ctx.message.author.name,
+            'channel': ctx.message.channel.id,
+            'server': ctx.message.server.id if ctx.message.server != None else 'None',
+            'time': ctx.message.timestamp
+        } 
+
+        file = open('reports', 'r', encoding='utf8')
+
+        reason_list = eval(file.read())
+        reason_list.append(info)
+
         file.close()
+        file = open('reports', 'w', encoding='utf8')
+        file.write(str(reason_list))
 
         await bot.send_message(
             ctx.message.channel,
-            'Thanks for reporting the error'
+            embed = discord.Embed(
+                title = 'Thanks!',
+                description = 'Thanks for reporting the error',
+                color = 0x6441A4
+            )
         )
 
     else:
-        if reason == None:
-            file = open('reports', 'r+')
+        if reason == '':
+            file = open('reports', 'r', encoding='utf8')
             
-            text = file.read().split('\n')
-            try:
-                for n in range(len(text) // 5 if len(text) % 5 == 0 else len(text) // 5 + 1):
-                    await bot.send_message(
-                        ctx.message.channel,
-                        '\n'.join(text[5*n: 5*(n+1)])
-                    )
-            except:
+            reasons = eval(file.read())
+            if reasons == []:
                 await bot.send_message(
                     ctx.message.channel,
-                    'Empity message'
+                    'No errors'
                 )
+                return
+            
+            for reason in reasons:
+                message = await bot.send_message(
+                    ctx.message.channel,
+                    embed = discord.Embed(
+                        title = f"{reason['author']}",
+                        description = reason['reason'],
+                        color = 0x6441A4
+                    )
+                )
+                
+                for emoji in ['❌', 'ℹ', '✅']:
+                    await bot.add_reaction(message, emoji)
+
+                global error_messages
+                error_messages.append({
+                    'message': message,
+                    'info': reason
+                })
         
         elif reason == 'clear':
-            file = open('reports', 'w')
-            file.write('')
+
+            file = open('reports', 'w', encoding='utf8')
+            file.write('[]')
+            file.close()
+
+            error_messages = []
 
             await bot.send_message(
                 ctx.message.channel,
@@ -241,15 +276,13 @@ async def _shutdown(ctx, mode):
                 ctx.message.channel,
                 'Shutting down'
             )
-
-            bot.logout()
+            await bot.logout()
         
         if mode in 'restart':
             await bot.send_message(
                 ctx.message.channel,
                 'Restart'
             ) 
-            bot.logout()
             bot.run(os.environ['token'])
     
     else:
@@ -308,11 +341,11 @@ async def _cogs(ctx, mode, *, path):
             'No access'
         )
 
-@bot.command(pass_context=True, name='file', aliases='fl')
+@bot.command(pass_context=True, name='file', aliases=['fl'])
 async def _file(ctx, mode, *, value):
     if ctx.message.author.id in DEVS:
         if mode in 'read':
-            file = open(value, 'r')
+            file = open(value, 'r', encoding='utf8')
             text = file.read()
 
             await bot.send_message(
@@ -323,9 +356,9 @@ async def _file(ctx, mode, *, value):
             file.close()
         if mode in 'get':
             try:
-                bot.send_file(
+                await bot.send_file(
                     ctx.message.channel,
-                    filename= f'{os.path.dirname(file)}/{value}'
+                    value
                 )
             except:
                 await bot.send_message(
@@ -335,10 +368,10 @@ async def _file(ctx, mode, *, value):
 
         if mode in 'remove':
             try:
-                os.rename(value, f'{os.path.dirname(__file__)}/removed/{value}')
+                os.rename(value, os.path.join(os.path.dirname(__file__), 'removed', value))
                 await bot.send_message(
                     ctx.message.channel,
-                    f'{value} *removed*'
+                    f'{value} removed'
                 )
             except:
                 await bot.send_message(
@@ -348,7 +381,10 @@ async def _file(ctx, mode, *, value):
         
         if mode in 'return':
             try:
-                os.rename(value, value.replace('removed/', ''))
+                os.rename(
+                    os.path.join(os.path.dirname(__file__), 'removed', value),
+                    os.path.join(os.path.dirname(__file__), value)
+                )
                 await bot.send_message(
                     ctx.message.channel,
                     f'{value} returned'
@@ -360,28 +396,77 @@ async def _file(ctx, mode, *, value):
                 )   
 
         if mode in 'add':
-            path, url = iter(value.split(' | '))
             try:
-                file = open(f'{os.path.dirname}/{path}', 'w')
-                file.write(
-                    urllib.open(url).read()
-                )
+                r = requests.get(ctx.message.attachments[0]['url'])
+
+                file = open(value, 'wb', encoding='utf8')
+                file.write(r.content)
+                file.close()
 
                 await bot.send_message(
                     ctx.message.channel,
                     'Successful'
                 )
+        
             except:
                 await bot.send_message(
                     ctx.message.channel,
                     'Something go wrong'
-                )   
-            file.close()
+                )
 
     else:
         await bot.send_message(
             ctx.message.channel,
             'No access'
         )
+
+@bot.event
+async def on_reaction_add(reaction, user):
+    for info in error_messages.copy():
+        if reaction.message.timestamp == info['message'].timestamp and user != bot.user:
+            try:
+                await bot.remove_reaction(reaction.message, reaction.emoji, user)
+            except:
+                pass
+            
+            if reaction.emoji == '❌':
+                file = open('reports', 'r', encoding='utf8')
+                reports = eval(file.read())
+                file.close()
+
+                file = open('reports', 'w', encoding='utf8')
+                reports.pop(reports.index(info['info']))
+                file.write(str(reports))
+                file.close()
+
+                error_messages.remove(info)
+                await bot.delete_message(info['message'])
+            
+            if reaction.emoji == 'ℹ':
+                await bot.send_message(
+                    reaction.message.channel,
+                    embed = discord.Embed(
+                        title = 'Info',
+                        description = '\n'.join([f"**{key}**: {info['info'][key]}" for key in info['info'].keys() if key != 'reason']),
+                        color = 0x6441A4
+                    )
+                )
+            
+            if reaction.emoji == '✅':
+                await bot.send_message(
+                    reaction.message.channel,
+                    f"Replying to {info['info']['author']}"
+                )
+                text = await bot.wait_for_message()
+
+                await bot.send_message(
+                    discord.Object(id=info['info']['channel']),
+                    text.content
+                )
+
+                await bot.send_message(
+                    reaction.message.channel,
+                    'Sended'
+                )
 
 bot.run(os.environ['token'])
