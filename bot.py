@@ -1,7 +1,8 @@
-#Developer šaH
-#version 1.2 
+#Developer šaH 
+#https://github.com/sah-py/
 
 import discord
+import urllib
 import os
 from discord.ext import commands
 
@@ -9,13 +10,14 @@ bot = commands.Bot(command_prefix=commands.when_mentioned_or('t?'))
 bot.remove_command('help')
 
 extetensions = ['profile','search','emojis','player','team']
+DEVS = ['255723371994546178']
 
 for extenstion in extetensions:
     bot.load_extension(f'cogs.{extenstion}')
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(game= discord.Game(name='t?help or t?'))
+    await bot.change_presence(game=discord.Game(name='t?help or t?'))
     
 @bot.command(pass_context=True, name='help', aliases=['h',''])
 async def _help(ctx, command=None):
@@ -174,7 +176,7 @@ async def _help(ctx, command=None):
 
 @bot.command(pass_context=True, name='report', aliases=['reports','rep','r'])
 async def _report(ctx, *, reason=None):
-    if ctx.message.author.id != '255723371994546178':
+    if ctx.message.author.id not in DEVS:
         if reason == None:
             await bot.send_message(
                 ctx.message.channel,
@@ -216,5 +218,169 @@ async def _report(ctx, *, reason=None):
                 ctx.message.channel,
                 'Cleared'
             )
+
+@bot.command(pass_context=True, name='changegame', aliases=['cg'])
+async def _changegame(ctx, *, game):
+    if ctx.message.author.id in DEVS:
+        await bot.change_presence(game=discord.Game(name=game))
+        await bot.send_message(
+            ctx.message.channel,
+            f'Game changed to {game}'
+        )
+    else:
+        await bot.send_message(
+            ctx.message.channel,
+            'No access'
+        )
+
+@bot.command(pass_context=True, name='shutdown', aliases=['sd'])
+async def _shutdown(ctx, mode):
+        if mode in 'stop':
+            await bot.send_message(
+                ctx.message.channel,
+                'Shutting down'
+            )
+
+            bot.close()
         
+        if mode in 'restart':
+            await bot.send_message(
+                ctx.message.channel,
+                'Restart'
+            ) 
+            bot.close()
+            bot.run(os.environ['token'])
+    
+    else:
+        await bot.send_message(
+            ctx.message.channel,
+            'No access'
+        )
+
+@bot.command(pass_context=True, name='cogs', aliases=['cg'])
+async def _cogs(ctx, mode, *, path):
+    if ctx.message.author.id in DEVS:
+        if mode in 'load':
+            try:
+                bot.load_extension(path)
+                await bot.send_message(
+                    ctx.message.channel,
+                    f'{path} loaded'
+                )
+            except:
+                await bot.send_message(
+                    ctx.message.channel,
+                    'Something go wrong'
+                )
+        
+        if mode in 'unload':
+            try:
+                bot.unload_extension(path)
+                await bot.send_message(
+                    ctx.message.channel,
+                    f'{path} unloaded'
+                )
+            except:
+                await bot.send_message(
+                    ctx.message.channel,
+                    'Something go wrong'
+                )
+        
+        if mode in 'reload':
+            try:
+                bot.unload_extension(path)
+                bot.load_extension(path)
+
+                await bot.send_message(
+                    ctx.message.channel,
+                    f'{path} reloaded'
+                )
+            except:
+                await bot.send_message(
+                    ctx.message.channel,
+                    'Something go wrong'
+                )
+            
+    else:
+        await bot.send_message(
+            ctx.message.channel,
+            'No access'
+        )
+
+@bot.command(pass_context=True, name='file', aliases='fl')
+async def _file(ctx, mode, *, value):
+    if ctx.message.author.id in DEVS:
+        if mode in 'read':
+            file = open(value, 'r')
+            text = file.read()
+
+            await bot.send_message(
+                ctx.message.channel,
+                text
+            )
+
+            file.close()
+        if mode in 'get':
+            try:
+                bot.send_file(
+                    ctx.message.channel,
+                    filename=value
+                )
+            except:
+                await bot.send_message(
+                    ctx.message.channel,
+                    'Something go wrong'
+                )   
+
+        if mode in 'remove':
+            try:
+                os.rename(value, f'removed/{value}')
+                await bot.send_message(
+                    ctx.message.channel,
+                    f'{value} *removed*'
+                )
+            except:
+                await bot.send_message(
+                    ctx.message.channel,
+                    'Something go wrong'
+                )   
+        
+        if mode in 'return':
+            try:
+                os.rename(value, value.replace('removed/', ''))
+                await bot.send_message(
+                    ctx.message.channel,
+                    f'{value} returned'
+                )
+            except:
+                await bot.send_message(
+                    ctx.message.channel,
+                    'Something go wrong'
+                )   
+
+        if mode in 'add':
+            path, url = iter(value.split(' | '))
+            try:
+                file = open(path, 'w')
+                file.write(
+                    urllib.open(url).read()
+                )
+
+                await bot.send_message(
+                    ctx.message.channel,
+                    'Successful'
+                )
+            except:
+                await bot.send_message(
+                    ctx.message.channel,
+                    'Something go wrong'
+                )   
+            file.close()
+
+    else:
+        await bot.send_message(
+            ctx.message.channel,
+            'No access'
+        )
+
 bot.run(os.environ['token'])
