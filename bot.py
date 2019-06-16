@@ -4,6 +4,7 @@
 import discord
 import urllib
 import os
+import datetime
 from discord.ext import commands
 
 bot = commands.Bot(command_prefix=commands.when_mentioned_or('t?'))
