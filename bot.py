@@ -2,16 +2,18 @@
 #https://github.com/sah-py/
 
 import discord
-import urllib
+import requests
 import os
+import asyncio
 import datetime
 from discord.ext import commands
 
 bot = commands.Bot(command_prefix=commands.when_mentioned_or('t?'))
 bot.remove_command('help')
 
-extetensions = ['profile','search','emojis','player','team']
 DEVS = ['255723371994546178']
+extetensions = ['profile','search','emojis','player','team']
+error_messages = []
 
 for extenstion in extetensions:
     bot.load_extension(f'cogs.{extenstion}')
